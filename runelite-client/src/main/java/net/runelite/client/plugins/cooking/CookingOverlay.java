@@ -101,15 +101,17 @@ class CookingOverlay extends Overlay
 			.right(session.getCookAmount() + (session.getCookAmount() >= 1 ? " (" + xpTrackerService.getActionsHr(Skill.COOKING) + "/hr)" : ""))
 			.build());
 
-		panelComponent.getChildren().add(LineComponent.builder()
-			.left("Burnt:")
-			.right(session.getBurnAmount() + (session.getBurnAmount() >= 1 ? " (" + FORMAT.format(session.getBurntPercentage()) + "%)" : ""))
-			.build());
+		if (session.getBurnAmount() > 0) {
+			panelComponent.getChildren().add(LineComponent.builder()
+				.left("Burnt:")
+				.right(session.getBurnAmount() + (session.getBurnAmount() >= 1 ? " (" + FORMAT.format(session.getBurntPercentage()) + "%)" : ""))
+				.build());
 
-		panelComponent.getChildren().add(LineComponent.builder()
-			.left("Total:")
-			.right(String.valueOf(session.getCookAmount() + session.getBurnAmount()))
-			.build());
+			panelComponent.getChildren().add(LineComponent.builder()
+				.left("Total:")
+				.right(String.valueOf(session.getCookAmount() + session.getBurnAmount()))
+				.build());
+		}
 
 		return panelComponent.render(graphics);
 	}
