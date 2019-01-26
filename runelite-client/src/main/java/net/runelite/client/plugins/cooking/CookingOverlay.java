@@ -106,6 +106,11 @@ class CookingOverlay extends Overlay
 			.right(session.getBurnAmount() + (session.getBurnAmount() >= 1 ? " (" + FORMAT.format(session.getBurntPercentage()) + "%)" : ""))
 			.build());
 
+		panelComponent.getChildren().add(LineComponent.builder()
+			.left("Total:")
+			.right(String.valueOf(session.getCookAmount() + session.getBurnAmount()))
+			.build());
+
 		return panelComponent.render(graphics);
 	}
 
