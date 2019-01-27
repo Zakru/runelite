@@ -55,7 +55,7 @@ public class GroundItemInputListener extends MouseAdapter implements KeyListener
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
-		if (e.getKeyCode() == HOTKEY)
+		if (config.hotkey().matches(e))
 		{
 			if (plugin.isHideAll())
 			{
@@ -79,7 +79,7 @@ public class GroundItemInputListener extends MouseAdapter implements KeyListener
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		if (e.getKeyCode() == HOTKEY)
+		if (config.hotkey().matches(e))
 		{
 			plugin.setHotKeyPressed(false);
 			plugin.setTextBoxBounds(null);

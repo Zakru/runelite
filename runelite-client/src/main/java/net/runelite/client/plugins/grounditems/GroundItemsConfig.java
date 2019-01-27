@@ -26,9 +26,11 @@
 package net.runelite.client.plugins.grounditems;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ModifierlessKeybind;
 import net.runelite.client.plugins.grounditems.config.ItemHighlightMode;
 import net.runelite.client.plugins.grounditems.config.MenuHighlightMode;
 import net.runelite.client.plugins.grounditems.config.PriceDisplayMode;
@@ -345,5 +347,16 @@ public interface GroundItemsConfig extends Config
 	default boolean collapseEntries()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		keyName = "hotkey",
+		name = "Quick config key",
+		description = "Quickly hide and highlight items",
+		position = 27
+	)
+	default ModifierlessKeybind hotkey()
+	{
+		return new ModifierlessKeybind(KeyEvent.VK_ALT, 0);
 	}
 }
