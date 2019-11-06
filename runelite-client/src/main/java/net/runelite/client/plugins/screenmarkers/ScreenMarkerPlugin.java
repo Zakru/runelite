@@ -35,10 +35,15 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.plaf.OptionPaneUI;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.runelite.api.events.ConfigChanged;
@@ -70,6 +75,12 @@ public class ScreenMarkerPlugin extends Plugin
 
 	@Getter
 	private final List<ScreenMarkerOverlay> screenMarkers = new ArrayList<>();
+
+	private final Set<String> groups = new HashSet<>();
+	@Getter
+	private final Set<String> emptyGroups = new HashSet<>();
+	@Getter
+	private final Set<String> hiddenGroups = new HashSet<>();
 
 	@Inject
 	private ConfigManager configManager;
@@ -107,6 +118,7 @@ public class ScreenMarkerPlugin extends Plugin
 		overlayManager.add(overlay);
 		loadConfig(configManager.getConfiguration(CONFIG_GROUP, CONFIG_KEY)).forEach(screenMarkers::add);
 		screenMarkers.forEach(overlayManager::add);
+		screenMarkers.forEach(m -> groups.add(m.getMarker().getGroup()));
 
 		pluginPanel = new ScreenMarkerPluginPanel(this);
 		pluginPanel.rebuild();
@@ -172,7 +184,8 @@ public class ScreenMarkerPlugin extends Plugin
 			pluginPanel.getSelectedBorderThickness(),
 			pluginPanel.getSelectedColor(),
 			pluginPanel.getSelectedFillColor(),
-			true
+			true,
+			null
 		);
 
 		// Set overlay creator bounds to current position and default size
@@ -226,6 +239,58 @@ public class ScreenMarkerPlugin extends Plugin
 		bounds.add(point);
 		overlay.setPreferredLocation(bounds.getLocation());
 		overlay.setPreferredSize(bounds.getSize());
+	}
+
+	public void addGroup()
+	{
+		while (true)
+		{
+			String newName = JOptionPane.showInputDialog("Name the new group");
+			if (Strings.isNullOrEmpty(newName)) return;
+
+			if (groups.add(newName))
+			{
+				emptyGroups.add(newName);
+			}
+		}
+	}
+
+	public void deleteGroup(String name)
+	{
+		groups.remove(name);
+		hiddenGroups.remove(name);
+		if (emptyGroups.remove(name)) return;
+
+		screenMarkers.removeIf(m -> name.equals(m.getMarker().getGroup()));
+	}
+
+	boolean getGroupVisible(String name)
+	{
+		return !hiddenGroups.contains(name);
+	}
+
+	public void setGroupVisible(String name, boolean visible)
+	{
+		if (!groups.contains(name)) return;
+
+		if (visible) hiddenGroups.remove(name);
+		else hiddenGroups.add(name);
+		hiddenGroups.remove(name);
+	}
+
+	public boolean renameGroup(String name, String newName)
+	{
+		if (!groups.contains(name)) return false;
+
+		groups.remove(name);
+		groups.add(newName);
+		if (emptyGroups.remove(name)) emptyGroups.add(newName);
+		if (hiddenGroups.remove(name)) hiddenGroups.add(newName);
+
+		for (ScreenMarkerOverlay marker : screenMarkers)
+			if (name.equals(marker.getMarker().getGroup())) marker.getMarker().setGroup(newName);
+
+		return true;
 	}
 
 	public void updateConfig()

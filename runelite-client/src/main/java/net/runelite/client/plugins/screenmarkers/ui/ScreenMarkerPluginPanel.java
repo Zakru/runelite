@@ -33,6 +33,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -159,9 +161,22 @@ public class ScreenMarkerPluginPanel extends PluginPanel
 
 		markerView.removeAll();
 
+		List<String> existingGroups = new ArrayList<>();
 		for (final ScreenMarkerOverlay marker : plugin.getScreenMarkers())
 		{
-			markerView.add(new ScreenMarkerPanel(plugin, marker), constraints);
+			String group = marker.getMarker().getGroup();
+			if (group == null)
+			{
+				markerView.add(new ScreenMarkerPanel(plugin, marker), constraints);
+			}
+			else if (!existingGroups.contains(group))
+			{
+				existingGroups.add(group);
+				List<ScreenMarkerPanel> markers = new ArrayList<>();
+				for (final ScreenMarkerOverlay m : plugin.getScreenMarkers())
+					if (group.equals(m.getMarker().getGroup())) markers.add(new ScreenMarkerPanel(plugin, m));
+				markerView.add(new ScreenMarkerGroupPanel(plugin, group, markers), constraints);
+			}
 			constraints.gridy++;
 
 			markerView.add(Box.createRigidArea(new Dimension(0, 10)), constraints);
